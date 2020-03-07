@@ -2,9 +2,6 @@ package obby0511.sentiment.analysis;
 
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
-import org.springframework.beans.factory.BeanInitializationException;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,16 +12,23 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-@Component
+@SuppressWarnings("unused")
 public class LanguageServiceImpl implements LanguageService {
     private Map<String, Float> scores;
 
-    public LanguageServiceImpl(
-            @Value("${obby0511.sentiment.analysis.dictionary:/pn.csv.m3.120408.trim.csv}") final String dictionary) {
+    public LanguageServiceImpl() {
+        try {
+            loadDictionary("/pn.csv.m3.120408.trim.csv");
+        } catch (IOException e) {
+            throw new LanguageServiceException(e.getMessage(), e);
+        }
+    }
+
+    public LanguageServiceImpl(final String dictionary) {
         try {
             loadDictionary(dictionary);
         } catch (IOException e) {
-            throw new BeanInitializationException(e.getMessage(), e);
+            throw new LanguageServiceException(e.getMessage(), e);
         }
     }
 

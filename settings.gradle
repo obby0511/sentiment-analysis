@@ -12,3 +12,7 @@ pluginManagement {
 	}
 }
 rootProject.name = 'sentiment-analysis'
+
+include 'library'
+include 'web-service'
+

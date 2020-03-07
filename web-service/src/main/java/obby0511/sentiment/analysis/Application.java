@@ -1,6 +1,5 @@
 package obby0511.sentiment.analysis;
 
-import lombok.AllArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.ResponseEntity;
@@ -9,13 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
 
-import static obby0511.sentiment.analysis.LanguageService.*;
+import static obby0511.sentiment.analysis.LanguageService.LanguageRequest;
+import static obby0511.sentiment.analysis.LanguageService.LanguageResponse;
 
 @RestController
-@AllArgsConstructor
 @SpringBootApplication
 public class Application {
-    private final LanguageService language;
+    private final LanguageService language = new LanguageServiceImpl();
 
     @PostMapping
     public ResponseEntity<LanguageResponse> analyze(String text) {
