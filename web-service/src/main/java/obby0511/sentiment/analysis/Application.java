@@ -2,28 +2,22 @@ package obby0511.sentiment.analysis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
-import java.nio.charset.StandardCharsets;
+import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 
-import static obby0511.sentiment.analysis.LanguageService.LanguageRequest;
-import static obby0511.sentiment.analysis.LanguageService.LanguageResponse;
-
-@RestController
 @SpringBootApplication
 public class Application {
-    private final LanguageService language = new LanguageServiceImpl();
 
-    @PostMapping
-    public ResponseEntity<LanguageResponse> analyze(String text) {
-        LanguageResponse res = language.analyzeSentiment(LanguageRequest.builder()
-                .text(text)
-                .encodingType(StandardCharsets.UTF_8)
-                .build());
-
-        return ResponseEntity.ok(res);
+    @Bean
+    public RouterFunction<ServerResponse> route(Handler handler) {
+        return RouterFunctions.route(
+                POST("/").and(accept(MediaType.TEXT_PLAIN)), handler::handle);
     }
 
     public static void main(String[] args) {
