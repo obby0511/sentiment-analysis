@@ -3,6 +3,7 @@ package obby0511.sentiment.analysis
 import com.atilika.kuromoji.ipadic.Tokenizer
 import java.io.File
 import java.nio.charset.Charset
+import java.text.Normalizer
 
 interface LanguageService {
     fun analyzeSentiment(request: LanguageRequest): LanguageResponse
@@ -31,8 +32,9 @@ class DefaultLanguageService(path: String = "/pn.csv.m3.120408.trim.csv") : Lang
     private val scores: Map<String, Float> = loadDictionary(path)
 
     override fun analyzeSentiment(request: LanguageRequest): LanguageResponse = try {
+        val text = normarize(request.text)
         val tokenizer = Tokenizer.Builder().build()
-        val score = tokenizer.tokenize(request.text).asSequence()
+        val score = tokenizer.tokenize(text).asSequence()
                 .map { it.surface }
                 .map { scores[it] ?: 0f }
                 .sum()
@@ -47,14 +49,13 @@ class DefaultLanguageService(path: String = "/pn.csv.m3.120408.trim.csv") : Lang
 class LanguageServiceException(message: String?, e: Exception) : RuntimeException(
 )
 
-
 fun loadDictionary(path: String): Map<String, Float> {
     val dict = DefaultLanguageService::class.java.getResource(path).path
     File(dict).useLines {
         return it.filter { it.isNotBlank() }
                 .map { it.split("\t") }
                 .map {
-                    val word = it[0]
+                    val word = normarize(it[0])
                     val score = when (it[1].trim()) {
                         "p" -> 1f
                         "n" -> -1f
@@ -65,3 +66,5 @@ fun loadDictionary(path: String): Map<String, Float> {
                 .toMap()
     }
 }
+
+fun normarize(text: String): String = Normalizer.normalize(text, Normalizer.Form.NFKC)
